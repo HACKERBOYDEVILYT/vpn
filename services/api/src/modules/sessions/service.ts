@@ -14,6 +14,7 @@ import {
 import {
   createSession,
   findSessionById,
+  findActiveSessionByDevice,
   updateSessionState,
   listActiveSessions
 } from "./repository.js";
@@ -36,6 +37,18 @@ export async function startVPNSession(
   if (!device) {
     throw new Error(
       "DEVICE_NOT_FOUND"
+    );
+  }
+
+  const existingSession =
+    await findActiveSessionByDevice(
+      userId,
+      params.deviceId
+    );
+
+  if (existingSession) {
+    throw new Error(
+      "DEVICE_ALREADY_CONNECTED"
     );
   }
 
