@@ -5,3 +5,11 @@ export {
 export {
   registerMeRoute
 } from "./auth/me.js";
+
+export {
+  registerUsersModule
+} from "./users/register.js";
+
+export {
+  registerDevicesModule
+} from "./devices/register.js";
