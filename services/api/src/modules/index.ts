@@ -17,3 +17,7 @@ export {
 export {
   registerServersModule
 } from "./servers/register.js";
+
+export {
+  registerFavoritesModule
+} from "./favorites/register.js";
