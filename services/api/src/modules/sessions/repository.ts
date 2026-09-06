@@ -121,7 +121,51 @@ export async function findSessionById(
           AND user_id = $2
         LIMIT 1
       `,
-      [sessionId, userId]
+      [
+        sessionId,
+        userId
+      ]
+    );
+
+  const row = result.rows[0];
+
+  return row
+    ? mapSession(row)
+    : null;
+}
+
+export async function findActiveSessionByDevice(
+  userId: string,
+  deviceId: string
+): Promise<VPNSession | null> {
+  const result =
+    await db.query<SessionRow>(
+      `
+        SELECT
+          id,
+          user_id,
+          device_id,
+          server_id,
+          protocol,
+          state,
+          started_at,
+          ended_at,
+          duration_seconds
+        FROM vpn_sessions
+        WHERE user_id = $1
+          AND device_id = $2
+          AND state IN (
+            'connecting',
+            'connected',
+            'reconnecting'
+          )
+        ORDER BY created_at DESC
+        LIMIT 1
+      `,
+      [
+        userId,
+        deviceId
+      ]
     );
 
   const row = result.rows[0];
@@ -142,6 +186,7 @@ export async function updateSessionState(
         UPDATE vpn_sessions
         SET
           state = $3,
+
           started_at =
             CASE
               WHEN $3 = 'connected'
@@ -149,23 +194,29 @@ export async function updateSessionState(
               THEN NOW()
               ELSE started_at
             END,
+
           ended_at =
             CASE
               WHEN $3 = 'disconnected'
               THEN NOW()
               ELSE ended_at
             END,
+
           duration_seconds =
             CASE
               WHEN $3 = 'disconnected'
                 AND started_at IS NOT NULL
               THEN EXTRACT(
-                EPOCH FROM (NOW() - started_at)
+                EPOCH FROM (
+                  NOW() - started_at
+                )
               )::INTEGER
               ELSE duration_seconds
             END
+
         WHERE id = $1
           AND user_id = $2
+
         RETURNING
           id,
           user_id,
