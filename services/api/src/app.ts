@@ -15,7 +15,8 @@ import {
   registerUsersModule,
   registerDevicesModule,
   registerServersModule,
-  registerFavoritesModule
+  registerFavoritesModule,
+  registerSessionsModule
 } from "./modules/index.js";
 
 import {
@@ -76,6 +77,7 @@ export async function createApp(): Promise<FastifyInstance> {
   await registerDevicesModule(app);
   await registerServersModule(app);
   await registerFavoritesModule(app);
+  await registerSessionsModule(app);
 
   return app;
 }
