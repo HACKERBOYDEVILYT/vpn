@@ -1,4 +1,6 @@
-import type { FastifyInstance } from "fastify";
+import type {
+  FastifyInstance
+} from "fastify";
 
 import {
   registerVPNConfigRoutes
@@ -8,10 +10,22 @@ import {
   registerVPNKeyRoutes
 } from "./key-routes.js";
 
+import {
+  registerVPNClientConfigRoutes
+} from "./config-routes.js";
+
 export async function registerVPNConfigModule(
   app: FastifyInstance
-): Promise<void> {
-  await registerVPNConfigRoutes(app);
+) {
+  await registerVPNConfigRoutes(
+    app
+  );
 
-  await registerVPNKeyRoutes(app);
+  await registerVPNKeyRoutes(
+    app
+  );
+
+  await registerVPNClientConfigRoutes(
+    app
+  );
 }
