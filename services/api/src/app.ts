@@ -1,18 +1,32 @@
-import Fastify, { type FastifyInstance } from "fastify";
+import Fastify, {
+  type FastifyInstance
+} from "fastify";
+
 import cors from "@fastify/cors";
 import helmet from "@fastify/helmet";
 import rateLimit from "@fastify/rate-limit";
 import sensible from "@fastify/sensible";
 
+import { env } from "./config/env.js";
+import {
+  registerAuthModule,
+  registerMeRoute
+} from "./modules/index.js";
+
+import {
+  registerErrorHandler
+} from "./middleware/index.js";
+
 export async function createApp(): Promise<FastifyInstance> {
   const app = Fastify({
     logger: {
       level:
-        process.env.NODE_ENV === "production"
+        env.NODE_ENV === "production"
           ? "info"
           : "debug"
     },
-    trustProxy: true
+    trustProxy: true,
+    requestIdHeader: "x-request-id"
   });
 
   await app.register(helmet, {
@@ -21,8 +35,8 @@ export async function createApp(): Promise<FastifyInstance> {
 
   await app.register(cors, {
     origin: [
-      process.env.WEB_URL ?? "http://localhost:5173",
-      process.env.ADMIN_URL ?? "http://localhost:5174"
+      env.WEB_URL,
+      env.ADMIN_URL
     ],
     credentials: true
   });
@@ -33,6 +47,8 @@ export async function createApp(): Promise<FastifyInstance> {
   });
 
   await app.register(sensible);
+
+  registerErrorHandler(app);
 
   app.get("/health", async () => {
     return {
@@ -48,6 +64,9 @@ export async function createApp(): Promise<FastifyInstance> {
       service: "nexavpn-api"
     };
   });
+
+  await registerAuthModule(app);
+  await registerMeRoute(app);
 
   return app;
 }
