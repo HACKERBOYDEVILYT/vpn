@@ -6,12 +6,18 @@ import {
   getServerVPNConfig
 } from "./repository.js";
 
+import {
+  getOrCreateDeviceKey
+} from "./key-service.js";
+
 import type {
   VPNConfig
 } from "./types.js";
 
 export async function generateVPNConfig(
   params: {
+    userId: string;
+    deviceId: string;
     serverId: string;
     protocol: VPNProtocol;
   }
@@ -45,28 +51,45 @@ export async function generateVPNConfig(
     );
   }
 
+  const deviceKey =
+    await getOrCreateDeviceKey(
+      params.userId,
+      params.deviceId
+    );
+
   if (
     params.protocol ===
     "wireguard"
   ) {
     return {
       serverId: server.id,
+
       protocol: "wireguard",
+
       endpoint:
         `${server.hostname}:51820`,
+
       serverPublicKey:
         server.public_key,
+
+      clientPublicKey:
+        deviceKey.publicKey,
+
       clientAddress:
         "10.0.0.2/32",
+
       dnsServers: [
         "1.1.1.1",
         "1.0.0.1"
       ],
+
       allowedIPs: [
         "0.0.0.0/0",
         "::/0"
       ],
+
       mtu: 1420,
+
       keepaliveSeconds: 25
     };
   }
@@ -77,17 +100,26 @@ export async function generateVPNConfig(
   ) {
     return {
       serverId: server.id,
+
       protocol: "openvpn",
+
       endpoint:
         `${server.hostname}:1194`,
+
       serverPublicKey:
         server.public_key,
+
+      clientPublicKey:
+        deviceKey.publicKey,
+
       clientAddress:
         "10.8.0.2/32",
+
       dnsServers: [
         "1.1.1.1",
         "1.0.0.1"
       ],
+
       allowedIPs: [
         "0.0.0.0/0",
         "::/0"
@@ -97,17 +129,26 @@ export async function generateVPNConfig(
 
   return {
     serverId: server.id,
+
     protocol: "ikev2",
+
     endpoint:
       server.hostname,
+
     serverPublicKey:
       server.public_key,
+
+    clientPublicKey:
+      deviceKey.publicKey,
+
     clientAddress:
       "10.20.0.2/32",
+
     dnsServers: [
       "1.1.1.1",
       "1.0.0.1"
     ],
+
     allowedIPs: [
       "0.0.0.0/0",
       "::/0"
