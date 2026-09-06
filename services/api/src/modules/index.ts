@@ -21,3 +21,7 @@ export {
 export {
   registerFavoritesModule
 } from "./favorites/register.js";
+
+export {
+  registerSessionsModule
+} from "./sessions/register.js";
