@@ -63,16 +63,29 @@ export async function registerSessionRoutes(
           error.message ===
             "DEVICE_NOT_FOUND"
         ) {
-          return reply
-            .status(404)
-            .send({
-              code:
-                "DEVICE_NOT_FOUND",
-              message:
-                "Device not found",
-              requestId:
-                request.id
-            });
+          return reply.status(404).send({
+            code:
+              "DEVICE_NOT_FOUND",
+            message:
+              "Device not found",
+            requestId:
+              request.id
+          });
+        }
+
+        if (
+          error instanceof Error &&
+          error.message ===
+            "DEVICE_ALREADY_CONNECTED"
+        ) {
+          return reply.status(409).send({
+            code:
+              "DEVICE_ALREADY_CONNECTED",
+            message:
+              "This device already has an active VPN session",
+            requestId:
+              request.id
+          });
         }
 
         if (
@@ -80,16 +93,14 @@ export async function registerSessionRoutes(
           error.message ===
             "SERVER_NOT_FOUND"
         ) {
-          return reply
-            .status(404)
-            .send({
-              code:
-                "SERVER_NOT_FOUND",
-              message:
-                "VPN server not found",
-              requestId:
-                request.id
-            });
+          return reply.status(404).send({
+            code:
+              "SERVER_NOT_FOUND",
+            message:
+              "VPN server not found",
+            requestId:
+              request.id
+          });
         }
 
         if (
@@ -97,16 +108,14 @@ export async function registerSessionRoutes(
           error.message ===
             "SERVER_UNAVAILABLE"
         ) {
-          return reply
-            .status(409)
-            .send({
-              code:
-                "SERVER_UNAVAILABLE",
-              message:
-                "VPN server is currently unavailable",
-              requestId:
-                request.id
-            });
+          return reply.status(409).send({
+            code:
+              "SERVER_UNAVAILABLE",
+            message:
+              "VPN server is currently unavailable",
+            requestId:
+              request.id
+          });
         }
 
         if (
@@ -114,16 +123,14 @@ export async function registerSessionRoutes(
           error.message ===
             "PROTOCOL_NOT_SUPPORTED"
         ) {
-          return reply
-            .status(400)
-            .send({
-              code:
-                "PROTOCOL_NOT_SUPPORTED",
-              message:
-                "Selected VPN protocol is not supported by this server",
-              requestId:
-                request.id
-            });
+          return reply.status(400).send({
+            code:
+              "PROTOCOL_NOT_SUPPORTED",
+            message:
+              "Selected VPN protocol is not supported by this server",
+            requestId:
+              request.id
+          });
         }
 
         throw error;
@@ -149,16 +156,14 @@ export async function registerSessionRoutes(
         );
 
       if (!session) {
-        return reply
-          .status(404)
-          .send({
-            code:
-              "SESSION_NOT_FOUND",
-            message:
-              "VPN session not found",
-            requestId:
-              request.id
-          });
+        return reply.status(404).send({
+          code:
+            "SESSION_NOT_FOUND",
+          message:
+            "VPN session not found",
+          requestId:
+            request.id
+        });
       }
 
       return {
@@ -195,16 +200,14 @@ export async function registerSessionRoutes(
           error.message ===
             "SESSION_NOT_FOUND"
         ) {
-          return reply
-            .status(404)
-            .send({
-              code:
-                "SESSION_NOT_FOUND",
-              message:
-                "VPN session not found",
-              requestId:
-                request.id
-            });
+          return reply.status(404).send({
+            code:
+              "SESSION_NOT_FOUND",
+            message:
+              "VPN session not found",
+            requestId:
+              request.id
+          });
         }
 
         throw error;
@@ -240,16 +243,14 @@ export async function registerSessionRoutes(
           error.message ===
             "SESSION_NOT_FOUND"
         ) {
-          return reply
-            .status(404)
-            .send({
-              code:
-                "SESSION_NOT_FOUND",
-              message:
-                "VPN session not found",
-              requestId:
-                request.id
-            });
+          return reply.status(404).send({
+            code:
+              "SESSION_NOT_FOUND",
+            message:
+              "VPN session not found",
+            requestId:
+              request.id
+          });
         }
 
         throw error;
