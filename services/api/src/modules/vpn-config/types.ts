@@ -11,6 +11,8 @@ export interface VPNConfig {
 
   serverPublicKey: string;
 
+  clientPublicKey?: string;
+
   clientAddress: string;
 
   dnsServers: string[];
@@ -26,7 +28,5 @@ export interface WireGuardConfig
   extends VPNConfig {
   protocol: "wireguard";
 
-  privateKey: string;
-
-  publicKey: string;
+  clientPublicKey: string;
 }
