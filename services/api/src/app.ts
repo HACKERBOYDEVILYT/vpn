@@ -16,7 +16,8 @@ import {
   registerDevicesModule,
   registerServersModule,
   registerFavoritesModule,
-  registerSessionsModule
+  registerSessionsModule,
+  registerVPNConfigModule
 } from "./modules/index.js";
 
 import {
@@ -31,8 +32,11 @@ export async function createApp(): Promise<FastifyInstance> {
           ? "info"
           : "debug"
     },
+
     trustProxy: true,
-    requestIdHeader: "x-request-id"
+
+    requestIdHeader:
+      "x-request-id"
   });
 
   await app.register(helmet, {
@@ -56,28 +60,43 @@ export async function createApp(): Promise<FastifyInstance> {
 
   registerErrorHandler(app);
 
-  app.get("/health", async () => {
-    return {
-      status: "ok",
-      service: "nexavpn-api",
-      timestamp: new Date().toISOString()
-    };
-  });
+  app.get(
+    "/health",
+    async () => {
+      return {
+        status: "ok",
+        service: "nexavpn-api",
+        timestamp:
+          new Date().toISOString()
+      };
+    }
+  );
 
-  app.get("/ready", async () => {
-    return {
-      status: "ready",
-      service: "nexavpn-api"
-    };
-  });
+  app.get(
+    "/ready",
+    async () => {
+      return {
+        status: "ready",
+        service: "nexavpn-api"
+      };
+    }
+  );
 
   await registerAuthModule(app);
+
   await registerMeRoute(app);
+
   await registerUsersModule(app);
+
   await registerDevicesModule(app);
+
   await registerServersModule(app);
+
   await registerFavoritesModule(app);
+
   await registerSessionsModule(app);
+
+  await registerVPNConfigModule(app);
 
   return app;
 }
