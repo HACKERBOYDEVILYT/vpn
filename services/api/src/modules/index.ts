@@ -13,3 +13,7 @@ export {
 export {
   registerDevicesModule
 } from "./devices/register.js";
+
+export {
+  registerServersModule
+} from "./servers/register.js";
