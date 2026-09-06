@@ -16,6 +16,7 @@ export {
 export {
   createSession,
   findSessionById,
+  findActiveSessionByDevice,
   updateSessionState,
   listActiveSessions
 } from "./repository.js";
