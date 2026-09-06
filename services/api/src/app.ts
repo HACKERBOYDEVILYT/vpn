@@ -8,9 +8,12 @@ import rateLimit from "@fastify/rate-limit";
 import sensible from "@fastify/sensible";
 
 import { env } from "./config/env.js";
+
 import {
   registerAuthModule,
-  registerMeRoute
+  registerMeRoute,
+  registerUsersModule,
+  registerDevicesModule
 } from "./modules/index.js";
 
 import {
@@ -67,6 +70,8 @@ export async function createApp(): Promise<FastifyInstance> {
 
   await registerAuthModule(app);
   await registerMeRoute(app);
+  await registerUsersModule(app);
+  await registerDevicesModule(app);
 
   return app;
 }
