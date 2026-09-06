@@ -1,4 +1,6 @@
-import type { FastifyInstance } from "fastify";
+import type {
+  FastifyInstance
+} from "fastify";
 
 import {
   requireAuth
@@ -18,9 +20,13 @@ export async function registerVPNConfigRoutes(
   app.post(
     "/vpn/config",
     {
-      preHandler: requireAuth
+      preHandler:
+        requireAuth
     },
-    async (request, reply) => {
+    async (
+      request,
+      reply
+    ) => {
       const input =
         VPNConfigRequestSchema.parse(
           request.body
@@ -29,8 +35,15 @@ export async function registerVPNConfigRoutes(
       try {
         const config =
           await generateVPNConfig({
+            userId:
+              request.auth.user.id,
+
+            deviceId:
+              input.deviceId,
+
             serverId:
               input.serverId,
+
             protocol:
               input.protocol
           });
@@ -39,6 +52,23 @@ export async function registerVPNConfigRoutes(
           config
         });
       } catch (error) {
+        if (
+          error instanceof Error &&
+          error.message ===
+            "DEVICE_NOT_FOUND"
+        ) {
+          return reply
+            .status(404)
+            .send({
+              code:
+                "DEVICE_NOT_FOUND",
+              message:
+                "Device not found",
+              requestId:
+                request.id
+            });
+        }
+
         if (
           error instanceof Error &&
           error.message ===
