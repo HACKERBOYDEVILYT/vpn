@@ -25,3 +25,7 @@ export {
 export {
   registerSessionsModule
 } from "./sessions/register.js";
+
+export {
+  registerVPNConfigModule
+} from "./vpn-config/register.js";
