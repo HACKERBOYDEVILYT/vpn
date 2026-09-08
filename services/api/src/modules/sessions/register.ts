@@ -18,6 +18,10 @@ import {
   registerSessionStateRoute
 } from "./state-route.js";
 
+import {
+  registerFailureRoute
+} from "./failure-route.js";
+
 export async function registerSessionModule(
   app: FastifyInstance
 ) {
@@ -34,6 +38,10 @@ export async function registerSessionModule(
   );
 
   await registerSessionStateRoute(
+    app
+  );
+
+  await registerFailureRoute(
     app
   );
 }
