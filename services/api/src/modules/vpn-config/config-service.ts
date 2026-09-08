@@ -12,11 +12,15 @@ import {
 
 import {
   decryptPrivateKey
-} from "./key-service.js";
+} from "./key-crypto.js";
 
 import {
   renderWireGuardConfig
 } from "./wireguard.js";
+
+import {
+  allocateClientAddress
+} from "./address-service.js";
 
 export async function generateClientVPNConfig(
   params: {
@@ -29,12 +33,29 @@ export async function generateClientVPNConfig(
   const config =
     await generateVPNConfig(params);
 
+  const clientAddress =
+    await allocateClientAddress({
+      userId:
+        params.userId,
+      deviceId:
+        params.deviceId,
+      serverId:
+        params.serverId,
+      protocol:
+        params.protocol
+    });
+
+  const resolvedConfig = {
+    ...config,
+    clientAddress
+  };
+
   if (
     config.protocol !==
     "wireguard"
   ) {
     return {
-      config,
+      config: resolvedConfig,
       client: null
     };
   }
@@ -58,15 +79,19 @@ export async function generateClientVPNConfig(
 
   const rendered =
     renderWireGuardConfig(
-      config,
+      {
+        ...config,
+        clientAddress
+      },
       privateKey
     );
 
   return {
-    config,
+    config: resolvedConfig,
     client: {
       protocol: "wireguard",
-      config: rendered.config
+      config:
+        rendered.config
     }
   };
 }
