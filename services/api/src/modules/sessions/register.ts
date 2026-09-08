@@ -7,6 +7,10 @@ import {
 } from "./routes.js";
 
 import {
+  registerConnectRoute
+} from "./connect-route.js";
+
+import {
   registerDisconnectRoute
 } from "./disconnect-route.js";
 
@@ -14,6 +18,10 @@ export async function registerSessionModule(
   app: FastifyInstance
 ) {
   await registerSessionRoutes(
+    app
+  );
+
+  await registerConnectRoute(
     app
   );
 
