@@ -12,6 +12,27 @@ function buildAddress(
   return `10.0.0.${host}/32`;
 }
 
+function isUniqueViolation(
+  error: unknown
+): boolean {
+  if (
+    typeof error !== "object" ||
+    error === null
+  ) {
+    return false;
+  }
+
+  const code =
+    "code" in error
+      ? String(
+          (error as { code: unknown })
+            .code
+        )
+      : "";
+
+  return code === "23505";
+}
+
 export async function allocateClientAddress(
   params: {
     userId: string;
@@ -19,7 +40,7 @@ export async function allocateClientAddress(
     serverId: string;
     protocol: string;
   }
-) {
+): Promise<string> {
   const existing =
     await findActiveClientAddress(
       params.deviceId,
@@ -30,13 +51,6 @@ export async function allocateClientAddress(
     return existing.address;
   }
 
-  /*
-   * Allocation is intentionally serialized
-   * by PostgreSQL advisory locking.
-   *
-   * This prevents two simultaneous VPN
-   * connections from selecting the same IP.
-   */
   for (
     let host = POOL_START;
     host <= POOL_END;
@@ -54,15 +68,8 @@ export async function allocateClientAddress(
 
       return result.address;
     } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "";
-
       if (
-        message.includes(
-          "idx_vpn_client_addresses_active"
-        )
+        isUniqueViolation(error)
       ) {
         continue;
       }
