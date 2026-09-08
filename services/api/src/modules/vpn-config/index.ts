@@ -3,6 +3,14 @@ export {
 } from "./service.js";
 
 export {
+  generateClientVPNConfig
+} from "./config-service.js";
+
+export {
+  allocateClientAddress
+} from "./address-service.js";
+
+export {
   getServerVPNConfig
 } from "./repository.js";
 
@@ -41,3 +49,7 @@ export {
 export {
   registerVPNKeyRoutes
 } from "./key-routes.js";
+
+export {
+  registerVPNClientConfigRoutes
+} from "./config-routes.js";
