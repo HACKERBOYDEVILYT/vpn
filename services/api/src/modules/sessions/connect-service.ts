@@ -11,6 +11,24 @@ import {
   releaseAllocatedAddress
 } from "../vpn-config/address-service.js";
 
+function isUniqueViolation(
+  error: unknown
+): boolean {
+  if (
+    typeof error !== "object" ||
+    error === null
+  ) {
+    return false;
+  }
+
+  return (
+    "code" in error &&
+    String(
+      (error as { code: unknown }).code
+    ) === "23505"
+  );
+}
+
 export async function connectVPNSession(
   params: {
     userId: string;
@@ -72,6 +90,14 @@ export async function connectVPNSession(
       serverId:
         params.serverId
     });
+
+    if (
+      isUniqueViolation(error)
+    ) {
+      throw new Error(
+        "DEVICE_ALREADY_CONNECTED"
+      );
+    }
 
     throw error;
   }
