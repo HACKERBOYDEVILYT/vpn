@@ -49,10 +49,14 @@ export async function registerVPNAddressRoutes(
       }
 
       try {
-        await releaseAllocatedAddress(
-          parsed.data.deviceId,
-          parsed.data.serverId
-        );
+        await releaseAllocatedAddress({
+          userId:
+            request.user.id,
+          deviceId:
+            parsed.data.deviceId,
+          serverId:
+            parsed.data.serverId
+        });
 
         return reply.send({
           success: true
