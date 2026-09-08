@@ -7,6 +7,10 @@ import {
   generateClientVPNConfig
 } from "../vpn-config/config-service.js";
 
+import {
+  releaseAllocatedAddress
+} from "../vpn-config/address-service.js";
+
 export async function connectVPNSession(
   params: {
     userId: string;
@@ -30,17 +34,16 @@ export async function connectVPNSession(
     );
   }
 
-  const vpnConfig =
-    await generateClientVPNConfig({
-      userId:
-        params.userId,
-      deviceId:
-        params.deviceId,
-      serverId:
-        params.serverId,
-      protocol:
-        params.protocol
-    });
+  await generateClientVPNConfig({
+    userId:
+      params.userId,
+    deviceId:
+      params.deviceId,
+    serverId:
+      params.serverId,
+    protocol:
+      params.protocol
+  });
 
   try {
     const session =
@@ -58,17 +61,18 @@ export async function connectVPNSession(
       });
 
     return {
-      session,
-      vpnConfig
+      session
     };
   } catch (error) {
-    /*
-     * Config allocation succeeded but
-     * session creation failed.
-     *
-     * The allocated address must not remain
-     * active forever.
-     */
+    await releaseAllocatedAddress({
+      userId:
+        params.userId,
+      deviceId:
+        params.deviceId,
+      serverId:
+        params.serverId
+    });
+
     throw error;
   }
 }
