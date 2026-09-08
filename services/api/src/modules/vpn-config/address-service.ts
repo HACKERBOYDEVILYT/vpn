@@ -105,11 +105,15 @@ export async function allocateClientAddress(
 }
 
 export async function releaseAllocatedAddress(
-  deviceId: string,
-  serverId: string
+  params: {
+    userId: string;
+    deviceId: string;
+    serverId: string;
+  }
 ): Promise<void> {
   await releaseClientAddress(
-    deviceId,
-    serverId
+    params.userId,
+    params.deviceId,
+    params.serverId
   );
 }
