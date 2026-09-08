@@ -50,6 +50,39 @@ export async function findSessionById(
   return result.rows[0] ?? null;
 }
 
+export async function createSession(
+  params: {
+    userId: string;
+    deviceId: string;
+    serverId: string;
+    protocol: string;
+    state: string;
+  }
+) {
+  const result = await query(
+    `
+      INSERT INTO vpn_sessions (
+        user_id,
+        device_id,
+        server_id,
+        protocol,
+        state
+      )
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING *
+    `,
+    [
+      params.userId,
+      params.deviceId,
+      params.serverId,
+      params.protocol,
+      params.state
+    ]
+  );
+
+  return result.rows[0];
+}
+
 export async function updateSessionState(
   userId: string,
   sessionId: string,
