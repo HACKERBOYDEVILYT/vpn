@@ -1,11 +1,23 @@
-import type { FastifyInstance } from "fastify";
+import type {
+  FastifyInstance
+} from "fastify";
 
 import {
   registerSessionRoutes
 } from "./routes.js";
 
-export async function registerSessionsModule(
+import {
+  registerDisconnectRoute
+} from "./disconnect-route.js";
+
+export async function registerSessionModule(
   app: FastifyInstance
-): Promise<void> {
-  await registerSessionRoutes(app);
+) {
+  await registerSessionRoutes(
+    app
+  );
+
+  await registerDisconnectRoute(
+    app
+  );
 }
