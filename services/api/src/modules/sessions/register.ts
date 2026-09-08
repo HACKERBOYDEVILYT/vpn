@@ -14,6 +14,10 @@ import {
   registerDisconnectRoute
 } from "./disconnect-route.js";
 
+import {
+  registerSessionStateRoute
+} from "./state-route.js";
+
 export async function registerSessionModule(
   app: FastifyInstance
 ) {
@@ -26,6 +30,10 @@ export async function registerSessionModule(
   );
 
   await registerDisconnectRoute(
+    app
+  );
+
+  await registerSessionStateRoute(
     app
   );
 }
