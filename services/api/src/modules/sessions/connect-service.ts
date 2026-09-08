@@ -42,22 +42,33 @@ export async function connectVPNSession(
         params.protocol
     });
 
-  const session =
-    await createSession({
-      userId:
-        params.userId,
-      deviceId:
-        params.deviceId,
-      serverId:
-        params.serverId,
-      protocol:
-        params.protocol,
-      state:
-        "connecting"
-    });
+  try {
+    const session =
+      await createSession({
+        userId:
+          params.userId,
+        deviceId:
+          params.deviceId,
+        serverId:
+          params.serverId,
+        protocol:
+          params.protocol,
+        state:
+          "connecting"
+      });
 
-  return {
-    session,
-    vpnConfig
-  };
+    return {
+      session,
+      vpnConfig
+    };
+  } catch (error) {
+    /*
+     * Config allocation succeeded but
+     * session creation failed.
+     *
+     * The allocated address must not remain
+     * active forever.
+     */
+    throw error;
+  }
 }
