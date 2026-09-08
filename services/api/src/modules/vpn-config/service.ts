@@ -34,7 +34,8 @@ export async function generateVPNConfig(
   }
 
   if (
-    server.status !== "online"
+    server.status !==
+    "online"
   ) {
     throw new Error(
       "SERVER_UNAVAILABLE"
@@ -57,92 +58,18 @@ export async function generateVPNConfig(
       params.deviceId
     );
 
-  if (
-    params.protocol ===
-    "wireguard"
-  ) {
-    return {
-      serverId: server.id,
-
-      protocol: "wireguard",
-
-      endpoint:
-        `${server.hostname}:51820`,
-
-      serverPublicKey:
-        server.public_key,
-
-      clientPublicKey:
-        deviceKey.publicKey,
-
-      clientAddress:
-        "10.0.0.2/32",
-
-      dnsServers: [
-        "1.1.1.1",
-        "1.0.0.1"
-      ],
-
-      allowedIPs: [
-        "0.0.0.0/0",
-        "::/0"
-      ],
-
-      mtu: 1420,
-
-      keepaliveSeconds: 25
-    };
-  }
-
-  if (
-    params.protocol ===
-    "openvpn"
-  ) {
-    return {
-      serverId: server.id,
-
-      protocol: "openvpn",
-
-      endpoint:
-        `${server.hostname}:1194`,
-
-      serverPublicKey:
-        server.public_key,
-
-      clientPublicKey:
-        deviceKey.publicKey,
-
-      clientAddress:
-        "10.8.0.2/32",
-
-      dnsServers: [
-        "1.1.1.1",
-        "1.0.0.1"
-      ],
-
-      allowedIPs: [
-        "0.0.0.0/0",
-        "::/0"
-      ]
-    };
-  }
-
-  return {
-    serverId: server.id,
-
-    protocol: "ikev2",
+  const common = {
+    serverId:
+      server.id,
 
     endpoint:
-      server.hostname,
+      `${server.hostname}:51820`,
 
     serverPublicKey:
       server.public_key,
 
     clientPublicKey:
       deviceKey.publicKey,
-
-    clientAddress:
-      "10.20.0.2/32",
 
     dnsServers: [
       "1.1.1.1",
@@ -153,5 +80,45 @@ export async function generateVPNConfig(
       "0.0.0.0/0",
       "::/0"
     ]
+  };
+
+  if (
+    params.protocol ===
+    "wireguard"
+  ) {
+    return {
+      ...common,
+      protocol:
+        "wireguard",
+      clientAddress:
+        "0.0.0.0/32",
+      mtu: 1420,
+      keepaliveSeconds: 25
+    };
+  }
+
+  if (
+    params.protocol ===
+    "openvpn"
+  ) {
+    return {
+      ...common,
+      protocol:
+        "openvpn",
+      endpoint:
+        `${server.hostname}:1194`,
+      clientAddress:
+        "0.0.0.0/32"
+    };
+  }
+
+  return {
+    ...common,
+    protocol:
+      "ikev2",
+    endpoint:
+      server.hostname,
+    clientAddress:
+      "0.0.0.0/32"
   };
 }
