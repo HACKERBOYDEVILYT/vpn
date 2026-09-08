@@ -1,7 +1,13 @@
 import {
   findActiveClientAddress,
-  createClientAddress
+  createClientAddress,
+  releaseClientAddress
 } from "./address-repository.js";
+
+import {
+  acquireAddressLock,
+  releaseAddressLock
+} from "./address-lock.js";
 
 const POOL_START = 2;
 const POOL_END = 254;
@@ -22,15 +28,12 @@ function isUniqueViolation(
     return false;
   }
 
-  const code =
-    "code" in error
-      ? String(
-          (error as { code: unknown })
-            .code
-        )
-      : "";
-
-  return code === "23505";
+  return (
+    "code" in error &&
+    String(
+      (error as { code: unknown }).code
+    ) === "23505"
+  );
 }
 
 export async function allocateClientAddress(
@@ -51,34 +54,62 @@ export async function allocateClientAddress(
     return existing.address;
   }
 
-  for (
-    let host = POOL_START;
-    host <= POOL_END;
-    host++
-  ) {
-    const address =
-      buildAddress(host);
+  await acquireAddressLock(
+    params.serverId
+  );
 
-    try {
-      const result =
-        await createClientAddress({
-          ...params,
-          address
-        });
+  try {
+    const lockedExisting =
+      await findActiveClientAddress(
+        params.deviceId,
+        params.serverId
+      );
 
-      return result.address;
-    } catch (error) {
-      if (
-        isUniqueViolation(error)
-      ) {
-        continue;
-      }
-
-      throw error;
+    if (lockedExisting) {
+      return lockedExisting.address;
     }
-  }
 
-  throw new Error(
-    "VPN_ADDRESS_POOL_EXHAUSTED"
+    for (
+      let host = POOL_START;
+      host <= POOL_END;
+      host++
+    ) {
+      try {
+        const result =
+          await createClientAddress({
+            ...params,
+            address:
+              buildAddress(host)
+          });
+
+        return result.address;
+      } catch (error) {
+        if (
+          isUniqueViolation(error)
+        ) {
+          continue;
+        }
+
+        throw error;
+      }
+    }
+
+    throw new Error(
+      "VPN_ADDRESS_POOL_EXHAUSTED"
+    );
+  } finally {
+    await releaseAddressLock(
+      params.serverId
+    );
+  }
+}
+
+export async function releaseAllocatedAddress(
+  deviceId: string,
+  serverId: string
+): Promise<void> {
+  await releaseClientAddress(
+    deviceId,
+    serverId
   );
 }
