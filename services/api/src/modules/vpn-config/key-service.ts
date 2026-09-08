@@ -8,55 +8,37 @@ import {
 } from "./key-repository.js";
 
 import {
-  listUserDevices
-} from "../devices/repository.js";
+  encryptPrivateKey
+} from "./key-crypto.js";
 
 export async function getOrCreateDeviceKey(
   userId: string,
   deviceId: string
 ) {
-  const device =
-    (await listUserDevices(userId))
-      .find(
-        (item) =>
-          item.id === deviceId
-      );
-
-  if (!device) {
-    throw new Error(
-      "DEVICE_NOT_FOUND"
-    );
-  }
-
-  const existingKey =
+  const existing =
     await findDeviceKey(
+      userId,
       deviceId
     );
 
-  if (existingKey) {
-    return existingKey;
+  if (existing) {
+    return existing;
   }
 
   const keyPair =
     generateClientKeyPair();
 
-  /*
-   * Temporary encrypted-storage
-   * placeholder.
-   *
-   * The real production implementation
-   * will use a dedicated encryption/key
-   * management layer.
-   */
-  const privateKeyEncrypted =
-    Buffer.from(
-      keyPair.privateKey,
-      "utf8"
-    ).toString("base64");
+  const encryptedPrivateKey =
+    encryptPrivateKey(
+      keyPair.privateKey
+    );
 
-  return createDeviceKey(
+  return createDeviceKey({
+    userId,
     deviceId,
-    keyPair.publicKey,
-    privateKeyEncrypted
-  );
+    publicKey:
+      keyPair.publicKey,
+    privateKeyEncrypted:
+      encryptedPrivateKey
+  });
 }
