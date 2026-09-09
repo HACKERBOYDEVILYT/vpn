@@ -19,6 +19,7 @@ import { registerSessionCleanup } from "./register-cleanup.js";
 
 import { registerSessionTelemetryRoute } from "./telemetry-route.js";
 import { registerSessionTelemetrySummaryRoute } from "./telemetry-summary-route.js";
+import { registerSessionDurationRoute } from "./telemetry-duration-route.js";
 
 export async function registerSessionModule(
   app: FastifyInstance
@@ -43,4 +44,5 @@ export async function registerSessionModule(
 
   await registerSessionTelemetryRoute(app);
   await registerSessionTelemetrySummaryRoute(app);
+  await registerSessionDurationRoute(app);
 }
