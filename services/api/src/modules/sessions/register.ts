@@ -3,6 +3,7 @@ import type { FastifyInstance } from "fastify";
 import { registerSessionRoutes } from "./routes.js";
 import { registerConnectRoute } from "./connect-route.js";
 import { registerDisconnectRoute } from "./disconnect-route.js";
+
 import { registerSessionStateRoute } from "./state-route.js";
 import { registerFailureRoute } from "./failure-route.js";
 import { registerSessionStatusRoute } from "./status-route.js";
@@ -17,6 +18,7 @@ import { registerStaleSessionRoute } from "./stale-session-route.js";
 import { registerSessionCleanup } from "./register-cleanup.js";
 
 import { registerSessionTelemetryRoute } from "./telemetry-route.js";
+import { registerSessionTelemetrySummaryRoute } from "./telemetry-summary-route.js";
 
 export async function registerSessionModule(
   app: FastifyInstance
@@ -40,4 +42,5 @@ export async function registerSessionModule(
   await registerSessionCleanup(app);
 
   await registerSessionTelemetryRoute(app);
+  await registerSessionTelemetrySummaryRoute(app);
 }
