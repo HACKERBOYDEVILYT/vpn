@@ -22,6 +22,7 @@ import { registerSessionTelemetrySummaryRoute } from "./telemetry-summary-route.
 import { registerSessionDurationRoute } from "./telemetry-duration-route.js";
 
 import { registerSessionConnectedRoute } from "./telemetry-state-route.js";
+import { registerConnectedStateRoute } from "./connected-state-route.js";
 
 export async function registerSessionModule(
   app: FastifyInstance
@@ -49,4 +50,5 @@ export async function registerSessionModule(
   await registerSessionDurationRoute(app);
 
   await registerSessionConnectedRoute(app);
+  await registerConnectedStateRoute(app);
 }
