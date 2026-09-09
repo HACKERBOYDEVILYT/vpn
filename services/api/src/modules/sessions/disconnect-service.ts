@@ -3,57 +3,47 @@ import {
   updateSessionState
 } from "./repository.js";
 
-import {
-  releaseAllocatedAddress
-} from "../vpn-config/address-service.js";
+import { releaseClientAddress } from "../vpn-config/address-service.js";
+import { markTelemetryEnded } from "./telemetry-repository.js";
 
 export async function disconnectVPNSession(
-  params: {
-    userId: string;
-    sessionId: string;
-  }
+  userId: string,
+  sessionId: string
 ) {
-  const session =
-    await findSessionById(
-      params.userId,
-      params.sessionId
-    );
+  const session = await findSessionById(
+    sessionId,
+    userId
+  );
 
   if (!session) {
-    throw new Error(
-      "SESSION_NOT_FOUND"
-    );
+    const error = new Error("SESSION_NOT_FOUND");
+    throw error;
   }
 
-  if (
-    session.state ===
-      "disconnected" ||
-    session.state ===
-      "failed"
-  ) {
-    return session;
+  if (session.state === "disconnected") {
+    await markTelemetryEnded(session.id);
+
+    return {
+      session,
+      alreadyDisconnected: true
+    };
   }
 
-  const updated =
-    await updateSessionState(
-      params.userId,
-      params.sessionId,
-      "disconnected"
-    );
+  const updatedSession = await updateSessionState(
+    session.id,
+    "disconnected"
+  );
 
-  if (
-    session.device_id &&
+  await markTelemetryEnded(session.id);
+
+  await releaseClientAddress(
+    session.user_id,
+    session.device_id,
     session.server_id
-  ) {
-    await releaseAllocatedAddress({
-      userId:
-        params.userId,
-      deviceId:
-        session.device_id,
-      serverId:
-        session.server_id
-    });
-  }
+  );
 
-  return updated;
+  return {
+    session: updatedSession,
+    alreadyDisconnected: false
+  };
 }
