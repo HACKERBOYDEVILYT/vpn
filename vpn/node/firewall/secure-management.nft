@@ -1,0 +1,13 @@
+table inet nexavpn_management {
+    chain input {
+        type filter hook input priority 10;
+        policy accept;
+
+        # Never expose DNS publicly.
+        iifname != "wg0" udp dport 53 drop
+        iifname != "wg0" tcp dport 53 drop
+
+        # WireGuard public listener.
+        udp dport 51820 accept
+    }
+}
