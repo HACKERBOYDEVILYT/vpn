@@ -1,0 +1,10 @@
+table ip6 nexavpn_ipv6_protection {
+    chain forward {
+        type filter hook forward priority 0;
+        policy accept;
+
+        # Prevent VPN clients from escaping through native IPv6
+        # when IPv6 VPN routing is not configured.
+        iifname "wg0" drop
+    }
+}
