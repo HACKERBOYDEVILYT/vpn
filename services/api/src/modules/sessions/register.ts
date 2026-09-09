@@ -6,6 +6,8 @@ import { registerSessionStateRoute } from "./state-route.js";
 import { registerFailureRoute } from "./failure-route.js";
 import { registerSessionStatusRoute } from "./status-route.js";
 import { registerReconnectRoute } from "./reconnect-route.js";
+import { registerReconnectCompleteRoute } from "./reconnect-complete-route.js";
+import { registerReconnectFailureRoute } from "./reconnect-failure-route.js";
 
 export async function registerSessionModule(
   app: FastifyInstance
@@ -17,4 +19,6 @@ export async function registerSessionModule(
   await registerFailureRoute(app);
   await registerSessionStatusRoute(app);
   await registerReconnectRoute(app);
+  await registerReconnectCompleteRoute(app);
+  await registerReconnectFailureRoute(app);
 }
