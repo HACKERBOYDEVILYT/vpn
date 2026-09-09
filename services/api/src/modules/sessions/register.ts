@@ -21,7 +21,6 @@ import { registerSessionTelemetryRoute } from "./telemetry-route.js";
 import { registerSessionTelemetrySummaryRoute } from "./telemetry-summary-route.js";
 import { registerSessionDurationRoute } from "./telemetry-duration-route.js";
 
-import { registerSessionConnectedRoute } from "./telemetry-state-route.js";
 import { registerConnectedStateRoute } from "./connected-state-route.js";
 
 export async function registerSessionModule(
@@ -49,6 +48,5 @@ export async function registerSessionModule(
   await registerSessionTelemetrySummaryRoute(app);
   await registerSessionDurationRoute(app);
 
-  await registerSessionConnectedRoute(app);
   await registerConnectedStateRoute(app);
 }
