@@ -2,12 +2,13 @@ import { query } from "../../database/client.js";
 
 export interface SessionTelemetry {
   session_id: string;
-  bytes_in: number;
-  bytes_out: number;
-  packets_in: number;
-  packets_out: number;
+  bytes_in: string;
+  bytes_out: string;
+  packets_in: string;
+  packets_out: string;
   connected_at: Date | null;
   last_reported_at: Date | null;
+  ended_at: Date | null;
   created_at: Date;
   updated_at: Date;
 }
@@ -15,7 +16,7 @@ export interface SessionTelemetry {
 export async function getSessionTelemetry(
   sessionId: string
 ): Promise<SessionTelemetry | null> {
-  const result = await query(
+  const result = await query<SessionTelemetry>(
     `
       SELECT
         session_id,
@@ -25,10 +26,12 @@ export async function getSessionTelemetry(
         packets_out,
         connected_at,
         last_reported_at,
+        ended_at,
         created_at,
         updated_at
       FROM vpn_session_telemetry
       WHERE session_id = $1
+      LIMIT 1
     `,
     [sessionId]
   );
@@ -38,13 +41,23 @@ export async function getSessionTelemetry(
 
 export async function ensureSessionTelemetry(
   sessionId: string
-) {
-  const result = await query(
+): Promise<SessionTelemetry> {
+  const result = await query<SessionTelemetry>(
     `
       INSERT INTO vpn_session_telemetry (
-        session_id
+        session_id,
+        bytes_in,
+        bytes_out,
+        packets_in,
+        packets_out
       )
-      VALUES ($1)
+      VALUES (
+        $1,
+        0,
+        0,
+        0,
+        0
+      )
       ON CONFLICT (session_id)
       DO UPDATE SET
         updated_at = NOW()
@@ -56,6 +69,7 @@ export async function ensureSessionTelemetry(
         packets_out,
         connected_at,
         last_reported_at,
+        ended_at,
         created_at,
         updated_at
     `,
@@ -65,16 +79,91 @@ export async function ensureSessionTelemetry(
   return result.rows[0];
 }
 
+export async function markTelemetryConnected(
+  sessionId: string
+): Promise<SessionTelemetry> {
+  const result = await query<SessionTelemetry>(
+    `
+      INSERT INTO vpn_session_telemetry (
+        session_id,
+        bytes_in,
+        bytes_out,
+        packets_in,
+        packets_out,
+        connected_at,
+        ended_at
+      )
+      VALUES (
+        $1,
+        0,
+        0,
+        0,
+        0,
+        NOW(),
+        NULL
+      )
+      ON CONFLICT (session_id)
+      DO UPDATE SET
+        connected_at = COALESCE(
+          vpn_session_telemetry.connected_at,
+          NOW()
+        ),
+        ended_at = NULL,
+        updated_at = NOW()
+      RETURNING
+        session_id,
+        bytes_in,
+        bytes_out,
+        packets_in,
+        packets_out,
+        connected_at,
+        last_reported_at,
+        ended_at,
+        created_at,
+        updated_at
+    `,
+    [sessionId]
+  );
+
+  return result.rows[0];
+}
+
+export async function markTelemetryEnded(
+  sessionId: string
+): Promise<SessionTelemetry | null> {
+  const result = await query<SessionTelemetry>(
+    `
+      UPDATE vpn_session_telemetry
+      SET
+        ended_at = COALESCE(ended_at, NOW()),
+        updated_at = NOW()
+      WHERE session_id = $1
+      RETURNING
+        session_id,
+        bytes_in,
+        bytes_out,
+        packets_in,
+        packets_out,
+        connected_at,
+        last_reported_at,
+        ended_at,
+        created_at,
+        updated_at
+    `,
+    [sessionId]
+  );
+
+  return result.rows[0] ?? null;
+}
+
 export async function updateSessionTelemetry(
   sessionId: string,
-  data: {
-    bytesIn: number;
-    bytesOut: number;
-    packetsIn: number;
-    packetsOut: number;
-  }
-) {
-  const result = await query(
+  bytesIn: number,
+  bytesOut: number,
+  packetsIn: number,
+  packetsOut: number
+): Promise<SessionTelemetry> {
+  const result = await query<SessionTelemetry>(
     `
       INSERT INTO vpn_session_telemetry (
         session_id,
@@ -84,7 +173,14 @@ export async function updateSessionTelemetry(
         packets_out,
         last_reported_at
       )
-      VALUES ($1, $2, $3, $4, $5, NOW())
+      VALUES (
+        $1,
+        $2,
+        $3,
+        $4,
+        $5,
+        NOW()
+      )
       ON CONFLICT (session_id)
       DO UPDATE SET
         bytes_in = EXCLUDED.bytes_in,
@@ -101,15 +197,16 @@ export async function updateSessionTelemetry(
         packets_out,
         connected_at,
         last_reported_at,
+        ended_at,
         created_at,
         updated_at
     `,
     [
       sessionId,
-      data.bytesIn,
-      data.bytesOut,
-      data.packetsIn,
-      data.packetsOut
+      bytesIn,
+      bytesOut,
+      packetsIn,
+      packetsOut
     ]
   );
 
