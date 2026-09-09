@@ -1,0 +1,19 @@
+# NexaVPN WireGuard node example
+#
+# This file is a TEMPLATE ONLY.
+# Never commit real private keys or production peer credentials.
+
+[Interface]
+PrivateKey = REPLACE_WITH_SERVER_PRIVATE_KEY
+Address = 10.0.0.1/24
+ListenPort = 51820
+
+# DNS is provided through the VPN node.
+# Actual DNS configuration is handled by vpn/node/dns/.
+
+# Example client:
+#
+# [Peer]
+# PublicKey = REPLACE_WITH_CLIENT_PUBLIC_KEY
+# AllowedIPs = 10.0.0.2/32
+# PersistentKeepalive = 25
