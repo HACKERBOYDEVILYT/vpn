@@ -107,3 +107,30 @@ export async function updateSessionState(
 
   return result.rows[0] ?? null;
 }
+export async function updateSessionHeartbeat(
+  sessionId: string
+) {
+  const result = await query(
+    `
+      UPDATE vpn_sessions
+      SET updated_at = NOW()
+      WHERE id = $1
+      RETURNING
+        id,
+        user_id,
+        device_id,
+        server_id,
+        protocol,
+        state,
+        created_at,
+        updated_at
+    `,
+    [sessionId]
+  );
+
+  if (result.rows.length === 0) {
+    throw new Error("SESSION_NOT_FOUND");
+  }
+
+  return result.rows[0];
+}
