@@ -1,0 +1,45 @@
+#!/usr/sbin/nft -f
+
+flush chain inet nexavpn input
+flush chain inet nexavpn forward
+flush chain ip nexavpn nat_postrouting
+
+table inet nexavpn {
+    chain input {
+        type filter hook input priority 0;
+        policy accept;
+
+        # Allow established traffic.
+        ct state established,related accept
+
+        # WireGuard UDP.
+        udp dport 51820 accept
+
+        # DNS only through WireGuard interface.
+        iifname "wg0" udp dport 53 accept
+        iifname "wg0" tcp dport 53 accept
+    }
+
+    chain forward {
+        type filter hook forward priority 0;
+        policy accept;
+
+        ct state established,related accept
+
+        # VPN client -> Internet.
+        iifname "wg0" accept
+
+        # Internet -> VPN client responses.
+        oifname "wg0" ct state established,related accept
+    }
+}
+
+table ip nexavpn {
+    chain nat_postrouting {
+        type nat hook postrouting priority srcnat;
+        policy accept;
+
+        # VPN subnet NAT.
+        ip saddr 10.0.0.0/24 oifname != "wg0" masquerade
+    }
+}
