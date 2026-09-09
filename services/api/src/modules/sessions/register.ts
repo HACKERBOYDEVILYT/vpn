@@ -9,6 +9,7 @@ import { registerReconnectRoute } from "./reconnect-route.js";
 import { registerReconnectCompleteRoute } from "./reconnect-complete-route.js";
 import { registerReconnectFailureRoute } from "./reconnect-failure-route.js";
 import { registerSessionHeartbeatRoute } from "./heartbeat-route.js";
+import { registerStaleSessionRoute } from "./stale-session-route.js";
 
 export async function registerSessionModule(
   app: FastifyInstance
@@ -23,4 +24,5 @@ export async function registerSessionModule(
   await registerReconnectCompleteRoute(app);
   await registerReconnectFailureRoute(app);
   await registerSessionHeartbeatRoute(app);
+  await registerStaleSessionRoute(app);
 }
