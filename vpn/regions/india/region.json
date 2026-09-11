@@ -1,0 +1,33 @@
+{
+  "code": "IN",
+  "slug": "india",
+  "name": "India",
+  "enabled": true,
+  "cities": [
+    {
+      "slug": "mumbai",
+      "name": "Mumbai",
+      "nodes": ["nexa-in-mumbai-01"]
+    },
+    {
+      "slug": "delhi",
+      "name": "Delhi",
+      "nodes": ["nexa-in-delhi-01"]
+    },
+    {
+      "slug": "bengaluru",
+      "name": "Bengaluru",
+      "nodes": ["nexa-in-bengaluru-01"]
+    },
+    {
+      "slug": "hyderabad",
+      "name": "Hyderabad",
+      "nodes": ["nexa-in-hyderabad-01"]
+    },
+    {
+      "slug": "chennai",
+      "name": "Chennai",
+      "nodes": ["nexa-in-chennai-01"]
+    }
+  ]
+}
