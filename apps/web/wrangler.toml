@@ -1,4 +1,7 @@
-name = "nexavpn-web"
-compatibility_date = "2026-09-11"
-[assets]
-directory = "./dist"
+[build]
+  base = "apps/web"
+  command = "npm install && npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
